@@ -241,9 +241,9 @@ _MEM_FORMAT = """
         u8     v_low_pwr_14;      // 0x016D       -
         u8     v_low_pwr_15;      // 0x016E       -
         u8     v_low_pwr_16;      // 0x016F       -
-        u8     x0170[112];
-        u8     x01E0[8];
-        u8     x01E8[8];
+        u8     x0170[122];
+        u8     v_power_2_factor;  // 0x01EA
+        u8     x01EB[5];
     } adv_settings;
 
     #seekto 0x0068;
@@ -2359,6 +2359,13 @@ class KGUVR5Radio(KGUV920PARadio):
                               0,
                               255,
                               int(_adv_settings.v_low_pwr_16))
+                          )
+        adv_settings_grp.append(rs)
+        rs = RadioSetting("v_power_2_factor", "VHF Medium power 1-2 Factor",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(_adv_settings.v_power_2_factor))
                           )
         adv_settings_grp.append(rs)
         #
