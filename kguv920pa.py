@@ -324,11 +324,11 @@ _MEM_FORMAT = """
         u8      scan_group;     // 0x027E
         u8      ptt_id_delay;   // 0x027F
 
-        u8      x0280;
+        u8      menu_available; // 0x0280
         u8      x0281;
         u8      beep;           // 0x0282
-        u8      x0283;
-        u8      x0284;
+        u8      keylock_a;      // 0x0283
+        u8      keylock_b;      // 0x0284
         u8      tx_led;         // 0x0285
         u8      wt_led;         // 0x0286
         u8      rx_led;         // 0x0287
@@ -460,7 +460,6 @@ _MEM_FORMAT = """
         u8      name[8];
     } names[999];
     """
-
 
 def _checksum(data):
     cs = 0
