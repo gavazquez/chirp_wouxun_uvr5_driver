@@ -861,8 +861,8 @@ class KGUV920PARadio(chirp_common.CloneModeRadio,
         rf.valid_power_levels = self.POWER_LEVELS
         rf.valid_name_length = 8
         rf.valid_duplexes = ["", "-", "+", "split", "off"]
-        rf.valid_bands = [(136000000, 175000000),  # supports 2m
-                          (420000000, 520000000)]  # supports 70cm
+        rf.valid_bands = [(100000000, 199000000),  # supports 2m
+                          (200000000, 320000000)]  # supports 200-320mhz
         rf.valid_characters = CHARSET
         rf.memory_bounds = (1, 999)  # 999 memories
         return rf
@@ -1622,23 +1622,23 @@ class KGUVR5Radio(KGUV920PARadio):
 
         rs = RadioSetting("vhf_rx_start", "VHF RX Lower Limit (MHz)",
                           RadioSettingValueInteger(
-                              136,
-                              175,
+                              100,
+                              199,
                               _limit_decode(_adv_settings.vhf_rx_start))
                           )
 
         adv_settings_grp.append(rs)
         rs = RadioSetting("vhf_rx_stop", "VHF RX Upper Limit (MHz)",
                           RadioSettingValueInteger(
-                              136,
-                              175,
+                              100,
+                              199,
                               _limit_decode(_adv_settings.vhf_rx_stop))
                           )
         adv_settings_grp.append(rs)
 
         rs = RadioSetting("vhf_tx_start", "VHF TX Lower Limit (MHz)",
                           RadioSettingValueInteger(
-                              136,
+                              122,
                               175,
                               _limit_decode(_adv_settings.vhf_tx_start))
                           )
@@ -1646,7 +1646,7 @@ class KGUVR5Radio(KGUV920PARadio):
         adv_settings_grp.append(rs)
         rs = RadioSetting("vhf_tx_stop", "VHF TX Upper Limit (MHz)",
                           RadioSettingValueInteger(
-                              136,
+                              122,
                               175,
                               _limit_decode(_adv_settings.vhf_tx_stop))
                           )
@@ -1655,14 +1655,14 @@ class KGUVR5Radio(KGUV920PARadio):
         rs = RadioSetting("uhf_rx_start", "UHF RX Lower Limit (MHz)",
                           RadioSettingValueInteger(
                               200,
-                              320,
+                              358,
                               _limit_decode(_adv_settings.uhf_rx_start))
                           )
         adv_settings_grp.append(rs)
         rs = RadioSetting("uhf_rx_stop", "UHF RX Upper Limit (MHz)",
                           RadioSettingValueInteger(
                               200,
-                              320,
+                              358,
                               _limit_decode(_adv_settings.uhf_rx_stop))
                           )
         adv_settings_grp.append(rs)
