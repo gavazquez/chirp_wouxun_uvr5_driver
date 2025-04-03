@@ -245,11 +245,38 @@ _MEM_FORMAT = """
         u8     v_power_2_factor;  // 0x01EA
         u8     x01EB[5];
     } adv_settings;
-
+    
     #seekto 0x0068;
     struct {
         u8     unknown1[8];     // 0x0068
-        u8     adv_settings[384];
+    } oem_info_unknown;
+
+    #seekto 0x00B0;
+    struct {
+        u8     settings[144];
+    } unknown1;
+    
+    #seekto 0x0137;
+    struct {
+        u8     gain_u_1;        // 0x0137
+        u8     gain_u_2;        // 0x0138
+        u8     gain_u_3;        // 0x0139
+    } uhf_mic_gain;
+
+    #seekto 0x0170;
+    struct {
+        u8     settings[368];
+    } unknown2;
+    
+    #seekto 0x01E7;
+    struct {
+        u8     gain_v_1;        // 0x01E7
+        u8     gain_v_2;        // 0x01E8
+        u8     gain_v_3;        // 0x01E9
+    } vhf_mic_gain;
+
+    #seekto 0x01F0;
+    struct {
         u8     model[8];        // 0x01F0
         u8     date[8];         // 0x01F8
         u8     oem1[8];         // 0x0200
@@ -260,8 +287,8 @@ _MEM_FORMAT = """
 
     #seekto 0x0220;
     struct {
-        u8     unknown[48];     // 0x0220
-    } unknown2;
+        u8     settings[48];     // 0x0220
+    } unknown3;
 
     #seekto 0x0250;
     struct {
@@ -1401,7 +1428,7 @@ class KGUV920PARadio(chirp_common.CloneModeRadio,
         val.set_mutable(False)
         rs = RadioSetting("oem2", "OEM String 2", val)
         oem_grp.append(rs)
-        _str = _str_decode(self._memobj.oem_info.unknown1)
+        _str = _str_decode(self._memobj.oem_info_unknown.unknown1)
         val = RadioSettingValueString(0, 15, _str)
         val.set_mutable(False)
         rs = RadioSetting("unknown1", "Unknown String 1", val)
@@ -1612,6 +1639,9 @@ class KGUVR5Radio(KGUV920PARadio):
 
         pwd_grp = RadioSettingGroup("pwd_grp", "PON Passwords")
         group.append(pwd_grp)
+
+        mic_grp = RadioSettingGroup("mic_grp", "Mic Settings")
+        group.append(mic_grp)
 
         #
         # Advanced settings
@@ -2367,6 +2397,7 @@ class KGUVR5Radio(KGUV920PARadio):
                               int(_adv_settings.v_power_2_factor))
                           )
         adv_settings_grp.append(rs)
+
         #
         # Power on passwords info
         #
@@ -2391,12 +2422,61 @@ class KGUVR5Radio(KGUV920PARadio):
         rs = RadioSetting("pwd_5", "Power on #5 Password", val)
         pwd_grp.append(rs)
 
+        #
+        # Microphone settings
+        #
+        rs = RadioSetting("gain_v_1", "VHF MIC Gain 1",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(self._memobj.vhf_mic_gain.gain_v_1))
+                          )
+        mic_grp.append(rs)
+        rs = RadioSetting("gain_v_2", "VHF MIC Gain 2",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(self._memobj.vhf_mic_gain.gain_v_2))
+                          )
+        mic_grp.append(rs)
+        rs = RadioSetting("gain_v_3", "VHF MIC Gain 3",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(self._memobj.vhf_mic_gain.gain_v_3))
+                          )
+        mic_grp.append(rs)
+        rs = RadioSetting("gain_u_1", "UHF MIC Gain 1",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(self._memobj.uhf_mic_gain.gain_u_1))
+                          )
+        mic_grp.append(rs)
+        rs = RadioSetting("gain_u_2", "UHF MIC Gain 2",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(self._memobj.uhf_mic_gain.gain_u_2))
+                          )
+        mic_grp.append(rs)
+        rs = RadioSetting("gain_u_3", "UHF MIC Gain 3",
+                          RadioSettingValueInteger(
+                              0,
+                              255,
+                              int(self._memobj.uhf_mic_gain.gain_u_3))
+                          )
+        mic_grp.append(rs)
+
         return group
 
     def set_settings(self, settings):
         advancedSettings_grp = next(x for x in settings
                                    if x.get_name() == "adv_settings_grp")
         settings.remove(advancedSettings_grp)
+        mic_grp = next(x for x in settings
+                                   if x.get_name() == "mic_grp")
+        settings.remove(mic_grp)
 
         cfg_grp = next(x for x in settings
                                    if x.get_name() == "cfg_grp")
@@ -2407,6 +2487,7 @@ class KGUVR5Radio(KGUV920PARadio):
 
         super().set_settings(settings)
         settings.append(advancedSettings_grp)
+        settings.append(mic_grp)
         cfg_grp.append(mode_pwd)
 
         for group in settings:
@@ -2439,4 +2520,16 @@ class KGUVR5Radio(KGUV920PARadio):
                     elif "power_2_factor" in name:
                         value = int(element[0].get_value())
                         setattr(self._memobj.adv_settings, name, value)
+                        continue
+                #
+                # MIC settings
+                #
+                if group.get_name() == 'mic_grp':
+                    if 'gain_v' in name:
+                        value = element[0].get_value()
+                        setattr(self._memobj.vhf_mic_gain, name, value)
+                        continue
+                    elif 'gain_u' in name:
+                        value = element[0].get_value()
+                        setattr(self._memobj.uhf_mic_gain, name, value)
                         continue
