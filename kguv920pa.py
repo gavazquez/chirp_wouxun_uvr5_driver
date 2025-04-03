@@ -1606,10 +1606,6 @@ class KGUVR5Radio(KGUV920PARadio):
     _max_freq = 320000000
     _max_tx_offset = 399999999
     
-    import subprocess as sp
-    import re
-    import time
-
     def get_features(self):
         rf = super().get_features()
         rf.valid_bands = [(136000000, 174000000),  # supports 2m
